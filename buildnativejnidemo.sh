@@ -7,6 +7,10 @@ CLASSOUT=classout
 MF=$CLASSOUT/META-INF/MANIFEST.MF
 JNIOUT=jni
 OUTJAR=nativedemo.jar
+NATIVE=com_charlie_ko_NativeDemo
+
+init()
+{
 rm -rf $MF $PKG $CLASSOUT $JNIOUT $OUTJAR
 #exit 0
 mkdir -p $PKG $CLASSOUT $JNIOUT $CLASSOUT/META-INF
@@ -33,7 +37,6 @@ javac -d $CLASSOUT @src.txt
 echo javah $PKG/$CLASS
 echo com.charlie.ko.NativeDemo > class.txt
 javah -d $JNIOUT -cp $CLASSOUT -jni @class.txt
-NATIVE=com_charlie_ko_NativeDemo
 cat > $JNIOUT/$NATIVE.cpp <<EOF
 #include <$NATIVE.h>
 #include <iostream>
@@ -50,6 +53,8 @@ Manifest-Version: 1.0
 Created-By: 1.8.0_272 (PrivateBuild)
 Main-Class: com.charlie.ko.NativeDemo
 EOF
+}
+#init
 g++ -fPIC -shared -Ijni $JNIOUT/$NATIVE.cpp -o $CLASS.so
 cd $CLASSOUT
 	jar -cvfm $OUTJAR META-INF/MANIFEST.MF .
