@@ -26,3 +26,8 @@ mod ijkplayer-example build.gradle
     compile project(':ijkplayer-exo')
     all64Compile project(':ijkplayer-arm64')
     }
+
+
+mod Android.mk
+-O3==>-g -O0 
+-DNDEBUG==>-DDEBUG
