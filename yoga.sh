@@ -52,3 +52,8 @@ begin
   <div layout="width: 40; height: 40; top: 0; left: 80;" style="width: 40px; height: 40px; " ></div>
   <div layout="width: 40; height: 40; top: 0; left: 120;" style="width: 40px; height: 40px; " ></div>
 </div>
+
+
+
+adb shell -x logcat -c
+adb shell -x logcat | grep yoga
