@@ -12,6 +12,7 @@
 #define LOGE(fmt,...) LOGO("\033[0;31;40m", "ERROR", fmt, ##__VA_ARGS__)
 
 
+////ijksdl_log移植
 #define ALOG(level, TAG, ...)  do{\
   __android_log_with_line(level,TAG,__FILE__,__LINE__,__VA_ARGS__);\
   }while(0)
@@ -25,3 +26,21 @@ void __android_log_with_line(int level, const char *tag, const char* file, int l
     __android_log_print(level,tag,"%s:%d %s",file,line,buf);
 }
 
+////av_log移植
+#define av_log(avcl, level, fmt,...)  av_log_with_line(avcl,level,__FILE__,__LINE__,fmt,##__VA_ARGS__)
+
+//void av_log(void *avcl, int level, const char *fmt, ...); //av_printf_format(3, 4);
+void av_log_with_line(void *avcl, int level, const char* file, int line, const char *fmt, ...); 
+
+void av_log_with_line(void *avcl, int level, const char* file, int line, const char *fmt, ...)
+{
+    AVClass* avc = avcl ? *(AVClass **) avcl : NULL;
+    va_list vl;
+    va_start(vl, fmt);
+    if (avc && avc->version >= (50 << 16 | 15 << 8 | 2) &&
+        avc->log_level_offset_offset && level >= AV_LOG_FATAL)
+        level += *(int *) (((uint8_t *) avcl) + avc->log_level_offset_offset);
+    char buf[1024] = {0};
+    snprintf(buf,1024,"%s:%d %s",file,line,fmt);
+    av_vlog(avcl, level, buf, vl);
+}
