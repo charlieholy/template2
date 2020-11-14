@@ -46,3 +46,6 @@ void av_log_with_line(void *avcl, int level, const char* file, int line, const c
 }
 
 ///////ffprobe -v debug ~/opt/kyzx/video.mp4  查看ffmpeg的debug日志
+///////ANativeWindow_fromSurface  从java_surface获取handle到native
+///////option    ffp->mediacodec_all_videos = 1  开启硬解码
+///////ffp->opensles = 1  开启opensl
