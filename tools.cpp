@@ -44,3 +44,5 @@ void av_log_with_line(void *avcl, int level, const char* file, int line, const c
     snprintf(buf,1024,"%s:%d %s",file,line,fmt);
     av_vlog(avcl, level, buf, vl);
 }
+
+///////ffprobe -v debug ~/opt/kyzx/video.mp4  查看ffmpeg的debug日志
