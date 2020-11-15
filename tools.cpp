@@ -49,3 +49,22 @@ void av_log_with_line(void *avcl, int level, const char* file, int line, const c
 ///////ANativeWindow_fromSurface  从java_surface获取handle到native
 ///////option    ffp->mediacodec_all_videos = 1  开启硬解码
 ///////ffp->opensles = 1  开启opensl
+
+
+
+adb shell getprop ro.product.cpu.abi
+adb root
+adb disable-verity          
+adb remount
+adb shell setenforce 0
+adb reboot
+ps -x | grep ijk
+gdbserver :1234 --attach 9443  
+adb forward tcp:1234 tcp:1234
+i686-darwin-android-gdb
+target remote:1234
+Python Exception <class 'gdb.MemoryError'> Cannot access memory at address 0xc: 
+#0  0xb7367685 in ?? ()
+Cannot access memory at address 0xc
+
+
