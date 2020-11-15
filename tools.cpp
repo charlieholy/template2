@@ -67,4 +67,9 @@ Python Exception <class 'gdb.MemoryError'> Cannot access memory at address 0xc:
 #0  0xb7367685 in ?? ()
 Cannot access memory at address 0xc
 
+	
+echo 写入十六进制数据
+echo 34325652 | xxd -r -ps > test 
+cat test
+>> 42VR
 
