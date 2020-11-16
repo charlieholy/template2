@@ -1,7 +1,7 @@
 #!/bin/bash
 gradle tasks --list
 gradle :entry:clean --info
-gradle enrty:compileDebugNativeWithCmake --info
+gradle entry:compileDebugNativeWithCmake --info
 
 add_definition(-DDEBUG -DOHOSME)
 
