@@ -26,12 +26,15 @@ void __android_log_with_line(int level, const char *tag, const char* file, int l
     __android_log_print(level,tag,"%s:%d %s",file,line,buf);
 }
 
+
 ////av_log移植
+
 #define av_log(avcl, level, fmt,...)  av_log_with_line(avcl,level,__FILE__,__LINE__,fmt,##__VA_ARGS__)
 
 //void av_log(void *avcl, int level, const char *fmt, ...); //av_printf_format(3, 4);
 void av_log_with_line(void *avcl, int level, const char* file, int line, const char *fmt, ...); 
 
+#include <sys/time.h>
 void av_log_with_line(void *avcl, int level, const char* file, int line, const char *fmt, ...)
 {
     AVClass* avc = avcl ? *(AVClass **) avcl : NULL;
@@ -40,8 +43,22 @@ void av_log_with_line(void *avcl, int level, const char* file, int line, const c
     if (avc && avc->version >= (50 << 16 | 15 << 8 | 2) &&
         avc->log_level_offset_offset && level >= AV_LOG_FATAL)
         level += *(int *) (((uint8_t *) avcl) + avc->log_level_offset_offset);
-    char buf[1024] = {0};
-    snprintf(buf,1024,"%s:%d %s",file,line,fmt);
+    
+    struct timeval  tv;
+    gettimeofday(&tv, NULL);
+
+    time_t now;
+    char szTime[32];
+    time(&now);
+    int lenDT = strftime(szTime, sizeof(szTime), "%Y-%m-%d %H:%M:%S", localtime(&now) );
+
+    snprintf(szTime + lenDT, sizeof(szTime) - lenDT,
+        ".%06ld",
+        tv.tv_usec
+    );
+	
+    char buf[1024] = {0};	
+    snprintf(buf,1024,"%s %s:%d %s",szTime,file,line,fmt);
     av_vlog(avcl, level, buf, vl);
 }
 
