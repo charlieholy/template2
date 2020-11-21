@@ -37,6 +37,18 @@ done
 tar zcvf output.tar.gz output
 
 ===================
+compile ffmpeg with debug info
+
+#!/bin/bash
+./configure \
+    --prefix=`pwd`/output \
+    --enable-debug=3 \
+    --disable-optimizations \
+    --disable-stripping \
+    --disable-x86asm
+
+
+========================
 
 valgrind --tool=callgrind --separate-threads=yes ./ffmpeg -i video.mp4 -vn -ar 44100 video.flv 
 
