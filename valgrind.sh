@@ -28,7 +28,7 @@ batch transfer
 #!/bin/bash
 rm -rf output dot
 mkdir output dot
-for var in `ls | gerp callgrind`
+for var in `ls | grep callgrind`
 do
         echo $var 
         gprof2dot -f callgrind -n10 -s $var > dot/$var.dot
