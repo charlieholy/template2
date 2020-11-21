@@ -34,9 +34,9 @@ do
         gprof2dot -f callgrind -n10 -s $var > dot/$var.dot
         dot -Tsvg dot/$var.dot -o output/$var.svg
 done
-
+tar zcvf output.tar.gz output
 
 ===================
 
 valgrind --tool=callgrind --separate-threads=yes ./ffmpeg -i video.mp4 -vn -ar 44100 video.flv 
-tar zcvf output.tar.gz output
+
