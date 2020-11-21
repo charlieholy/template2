@@ -1,0 +1,2 @@
+freeswitch deps APR - Apache Portable Runtime 
+nyx deps libev - epoll lib
