@@ -13,3 +13,7 @@ ffmpeg -i mrt.mp4 -i sub3.srt -map 0:0 -map 0:1 -map 1 -c:a copy -c:v copy -c:s 
 
 
 将mrt.mkv2 分解为mrt.mp4 + sub3.srt 修改字幕合并为video.mkv
+
+
+pcm-wav
+./bin/ffmpeg -f s16le -ar 44.1k -ac 2 -i xx.pcm rec.wav
