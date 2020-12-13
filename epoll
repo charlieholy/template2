@@ -59,3 +59,105 @@ int main()
 //
 2020-12-12 12:02:33.499895:eq:6
 2020-12-12 12:02:36.500002:after wait...
+
+第二范式
+#include <stdio.h>
+#include <iostream>
+#include <sys/epoll.h>
+using namespace std;
+
+#include <sys/time.h>
+#include <sys/timerfd.h>
+#include <string.h>
+#include <unistd.h>
+#include <stdint.h>
+string printTime()
+{
+    struct timeval  tv;
+    gettimeofday(&tv, NULL);
+
+    time_t now;
+    char szTime[32];
+    time(&now);
+    int lenDT = strftime(szTime, sizeof(szTime), "%Y-%m-%d %H:%M:%S", localtime(&now) );
+
+    snprintf(szTime + lenDT, sizeof(szTime) - lenDT,
+        ".%06ld:",
+        tv.tv_usec
+    );
+    return szTime;
+    
+}
+
+int main()
+{
+    int eq = 0;
+    eq = epoll_create(1024);
+
+    int tfd = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK);
+    itimerspec tmp;
+	itimerspec dummy;
+	memset(&tmp, 0, sizeof (tmp));
+    int seconds = 3;
+	tmp.it_interval.tv_nsec = 0;
+	tmp.it_interval.tv_sec = seconds;
+	tmp.it_value.tv_nsec = 0;
+	tmp.it_value.tv_sec = seconds;
+    timerfd_settime(tfd,0,&tmp,&dummy);
+    struct epoll_event evt = {0,
+		{0}};
+	evt.events = EPOLLIN;
+    evt.data.fd = tfd;
+	//evt.data.ptr = pIOHandler->GetIOHandlerManagerToken();
+	if (epoll_ctl(eq, EPOLL_CTL_ADD, tfd, &evt) != 0) {
+        cout << "epoll err..." << endl;
+    }
+
+
+    struct epoll_event _query[16];
+    cout << printTime() << "eq:" << eq << endl;
+    while(1)
+    {
+
+        int num = epoll_wait(eq,_query,1024,-1);
+        cout << printTime() << "after wait..." << endl;
+
+
+      for (int i = 0; i < num; ++i) {
+            int fd = _query[i].data.fd;
+            int events = _query[i].events;
+
+            if ( (events & EPOLLERR) || (events & EPOLLHUP) ) {
+                std::cout << "epoll_wait error!" << std::endl;
+                // An error has occured on this fd, or the socket is not ready for reading (why were we notified then?).
+
+            } else  if (events & EPOLLRDHUP) {
+                // Stream socket peer closed connection, or shut down writing half of connection.
+                // more inportant, We still to handle disconnection when read()/recv() return 0 or -1 just to be sure.
+                std::cout << "fd:" << fd << " closed EPOLLRDHUP!" << std::endl;
+                // close fd and epoll will remove it
+
+            } else if ( events & EPOLLIN ) {
+                std::cout << "epollin" << std::endl;
+
+                int64_t count;
+                read(fd,&count,8);
+                cout << "count:" << count << endl;
+
+                evt.events =  EPOLLOUT | EPOLLIN;
+                epoll_ctl(eq, EPOLL_CTL_ADD,  fileno(stdout), &evt);
+
+            } else if ( events & EPOLLOUT ) {
+                std::cout << "epollout" << std::endl;
+              
+                return 0;
+                // write event for fd (not including listen-fd), meaning send buffer is available for big files
+
+            } else {
+                std::cout << "unknow epoll event!" << std::endl;
+            }
+      }
+    }
+
+    return 0;
+}
