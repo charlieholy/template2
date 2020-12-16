@@ -1,0 +1,24 @@
+webrtc sigslot Ex..
+#include <iostream>
+#include "sigslot.h"
+using namespace std;
+
+class A : public sigslot::has_slots<>{
+public:
+	void foo(){
+	   cout << "foo..." << endl;
+	}
+};
+
+int main()
+{
+	cout << "asd" << endl;
+	A a;
+	a.foo();
+
+	sigslot::signal0<> Clicked;
+	Clicked.connect(&a,&A::foo);
+	Clicked();
+
+  return 0;
+}
