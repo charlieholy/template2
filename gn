@@ -1,0 +1,25 @@
+//BUILD.gn
+group("demo"){
+  deps = [
+    "//tools/gn/demo:demo"
+  ]
+}
+/////////////////////////
+
+BUILD.gn
+executable("demo"){
+    sources = [
+      "demo.cc",
+    ]
+}
+demo.cc
+#include <stdio.h>
+int main()
+{
+	printf("hello world!\n");
+	return 0;
+}
+//////////
+gn gen out/gn_demo
+ninja -C out/gn_demo demo
+
