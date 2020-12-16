@@ -1,0 +1,12 @@
+10.18.0.31: server/server  su hello123
+
+//windows共享samba配置 新建share文件用于共享 然后设置防火墙 添加用户 添加用户权限等诸多限制
+mount faq https://www.cnblogs.com/ding2016/p/9605526.html
+
+mount -t cifs -o username=Everyone  //172.16.1.21/share /home/charlie/gateway/
+fuser /home/charlie/gateway/
+umount //172.16.1.21/share
+
+
+
+mount -t cifs -o username=Everyone  //172.16.1.21/gitlab /home/charlie/gateway
