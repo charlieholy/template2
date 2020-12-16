@@ -4,6 +4,8 @@ typename remove_reference<T>::type && move(T&& t)
 {
     return static_cast<typename remove_reference<T>::type &&>(t);
 }
+强制返回右值引用
+
 std::forword
 template <class T>
 T&& forward(typename tinySTL::remove_reference<T>::type& t) noexcept {
@@ -14,6 +16,9 @@ template <class T>
 T&& forward(typename tinySTL::remove_reference<T>::type&& t) noexcept {
     return static_cast<T&&>(t);
 }
+和std::move一样，std::forward借助万用引用来实现完美转发。
+当t是左值引用时，此时推到得到T = X&，则T&&展开为X& &&，经过引用折叠后得到X&，即最后返回static_cast<X&>(t)。
+当t是右值引用时，此时推到得到T = X&&，则T&&展开为X&& &&，经过引用折叠后得到X&&，即最后返回static_cast<X&&>(t)。
 
 
 特化
