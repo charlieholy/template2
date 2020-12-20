@@ -1,0 +1,2 @@
+int clone(int (*fn)(void*),void child_stack,int flags,void* arg);
+第一个参数是函数指针 该指针指向一个函数 参数是void* 返回int值
