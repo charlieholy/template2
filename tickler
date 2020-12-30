@@ -1,0 +1,4 @@
+gdb --args /lib64/ld-linux-x86-64.so.2 ./a.out
+#set stop-on-solib-events 1
+#info proc map
+add-symbol-file ./a.out
