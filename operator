@@ -1,0 +1,13 @@
+#include <iostream>
+using namespace std;
+template <class T,T...Chrs>
+void operator""_s(){
+  cout << "asd" << endl;
+}
+
+int main()
+{
+  "asd"_s;
+  cout << "sd" << endl;
+  return 0;
+}
