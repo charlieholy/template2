@@ -1,0 +1,5 @@
+sudo mv "Google Chrome" Google.ori
+vi "Google Chrome"
+#!/bin/bash
+"/Applications/Google Chrome.app/Contents/MacOS/Google.ori" --args --disable-web-security --unsafely-treat-insecure-origin-as-secure="http://116.62.173.161:8080" --user-data-dir=/Users/chenpeiwen/opt/userdatadir
+sudo chmod u+x "Google Chrome"
