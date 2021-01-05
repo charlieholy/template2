@@ -1,0 +1,109 @@
+第一步安装openvpn所需软件
+1.安装EPEL仓库  阿里云似乎不需要
+2.安装openvpn
+yum install openvpn
+3.安装openvpn最新的easy-rsa，该包用来制作ca证书，服务端证书，客户端证书。最新的为easy-rsa3
+wget https://github.com/OpenVPN/easy-rsa/archive/master.zip
+unzip master.zip
+mv easy-rsa-mater/ easy-rsa/
+cp -R easy-rsa/ /etc/openvpn/
+cp /etc/openvpn/easy-rsa/easyrsa3/
+cp vars.example vars
+
+配置vars
+set_var EASYRSA_REQ_COUNTRY     "CN"
+set_var EASYRSA_REQ_PROVINCE    "ZJ"
+set_var EASYRSA_REQ_CITY        "ZHEJIANG"
+set_var EASYRSA_REQ_ORG "HANGZHOU"
+set_var EASYRSA_REQ_EMAIL       "357483226@qq.com"
+set_var EASYRSA_REQ_OU          "My OpenVPN"
+
+创建服务端证书及key
+初始化 ./easyrsa init-pki
+创建根证书 ./easyrsa build-ca  输入设置ca密码以及name  [charlie]
+创建服务器证书 ./easyrsa gen-req server nopass 输入name不要跟根证书一样 [charlieholy]
+签约服务器证书 ./easyrsa sign server server 需要输入ca密码
+创建Diffie-Hellman，确保key穿越不安全网络的命令   ./easyrsa gen-dh
+
+创建客户端证书
+cd /root
+mkdir client && cd client
+cp -R easy-rsa/ client/
+cd client/easy-rsa/easyrsa3/
+初始化 ./easyrsa init-pki
+创建客户端key及生成证书 ./easyrsa gen-req charlie 输入密码以及name
+导入req  ./easyrsa import-req /root/client/easy-rsa/easyrsa3/pki/reqs/hywx.req charlie
+
+
+检查生成的最终文件
+/etc/openvpn/easy-rsa/easyrsa3/pki/ca.crt
+/etc/openvpn/easy-rsa/easyrsa3/pki/reqs/server.req
+/etc/openvpn/easy-rsa/easyrsa3/pki/reqs/charlie.req
+/etc/openvpn/easy-rsa/easyrsa3/pki/private/ca.key
+/etc/openvpn/easy-rsa/easyrsa3/pki/private/server.key
+/etc/openvpn/easy-rsa/easyrsa3/pki/issued/server.crt
+/etc/openvpn/easy-rsa/easyrsa3/pki/issued/charlie.crt
+/etc/openvpn/easy-rsa/easyrsa3/pki/dh.pem
+
+/root/client/easy-rsa/easyrsa3/pki/private/charlie.key
+/root/client/easy-rsa/easyrsa3/pki/reqs/charlie.req 
+
+拷贝这些文件放入到相应位置。将下列文件放到/etc/openvpn/ 目录执行命令
+cp /etc/openvpn/easy-rsa/easyrsa3/pki/ca.crt /etc/openvpn
+cp /etc/openvpn/easy-rsa/easyrsa3/pki/private/server.key /etc/openvpn
+cp /etc/openvpn/easy-rsa/easyrsa3/pki/issued/server.crt /etc/openvpn
+cp /etc/openvpn/easy-rsa/easyrsa3/pki/dh.pem /etc/openvpn
+将下列文件放到/root/client 目录下执行命令
+cp /etc/openvpn/easy-rsa/easyrsa3/pki/ca.crt /root/client
+cp /etc/openvpn/easy-rsa/easyrsa3/pki/issued/charlie.crt /root/client
+cp /root/client/easy-rsa/easyrsa3/pki/private/charlie.key /root/client
+
+编写服务器配置文件
+local 172.17.23.114  #本机ip
+port 1194
+proto tcp
+dev tun
+ca /etc/openvpn/ca.crt
+cert /etc/openvpn/server.crt
+key /etc/openvpn/server.key  # This file should be kept secret
+dh /etc/openvpn/dh.pem
+server 10.8.0.0 255.255.255.0
+ifconfig-pool-persist ipp.txt
+push "redirect-gateway def1 bypass-dhcp"
+push "dhcp-option DNS 8.8.8.8"
+keepalive 10 120
+comp-lzo
+max-clients 100
+persist-key
+persist-tun
+status openvpn-status.log
+verb 3
+
+
+编辑client.ovpn给客户端导入
+client
+dev tun
+proto tcp
+remote 47.110.10.50 1194  
+resolv-retry infinite
+nobind
+persist-key
+persist-tun
+ca ca.crt
+cert charlie.crt
+key charlie.key
+comp-lzo
+verb 3
+
+启动
+
+systemctl start openvpn@server.service（启动）
+systemctl status openvpn@server.service （查看状态）
+systemctl restart openvpn@server.service （重启）
+lsof -i:1194（查看启动是否成功）
+
+如果启动失败
+可以手动启动
+/usr/bin/openvpn --config /etc/openvpn/server.conf
+
+
