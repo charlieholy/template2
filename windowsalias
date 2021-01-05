@@ -1,0 +1,17 @@
+regedit 
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Command Processor
+add AutoRun C:\Users\xxx\alias.bat
+
+@echo off
+doskey ls = dir /b $*
+doskey rm = del $*
+doskey -rf = /s $*
+doskey mk = md $*
+doskey clear = cls $*
+doskey ll = dir $*
+doskey cat = type $*
+doskey which = where $*
+doskey ifconfig = ipconfig $*
+doskey mv = move $*
+doskey cp = copy $*
+doskey Sz = scp root@10.185.105.226:/home/share/$*
