@@ -17,3 +17,12 @@ ffmpeg -i mrt.mp4 -i sub3.srt -map 0:0 -map 0:1 -map 1 -c:a copy -c:v copy -c:s 
 
 pcm-wav
 ./bin/ffmpeg -f s16le -ar 44.1k -ac 2 -i xx.pcm rec.wav
+
+
+
+#for png
+rm $(ls | egrep -v '(build.sh|logo.png)')
+ffmpeg -i ./logo.png -vf crop=iw/2:ih:0 left.png
+ffmpeg -i ./logo.png -vf crop=iw/2:ih:iw/2  right.png
+ffmpeg -i left.png -vf pad=2*iw left2.png
+ffmpeg -i ./left2.png  -i right.png -filter_complex overlay=w:0 full.png
