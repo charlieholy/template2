@@ -1,0 +1,60 @@
+ssl证书申请
+dns本地服务器搭建
+
+
+生成证书
+创建根证书
+新建ca.cnf文件并输入以下内容
+[ req ]
+distinguished_name  = req_distinguished_name
+x509_extensions     = root_ca
+
+[ req_distinguished_name ]
+
+# 以下内容可随意填写
+countryName             = CN
+countryName_min         = 2
+countryName_max         = 2
+stateOrProvinceName     = ZheJiang
+localityName            = HangZhou
+0.organizationName      = Charlie
+organizationalUnitName  = Ltd
+commonName              = develop
+commonName_max          = 64
+emailAddress            = team@charlie.cn
+emailAddress_max        = 64
+
+[ root_ca ]
+basicConstraints            = critical, CA:true
+
+新建server.ext文件，并输入以下内容
+subjectAltName = @alt_names
+extendedKeyUsage = serverAuth
+
+[alt_names]
+
+# 域名，如有多个用DNS.2,DNS.3…来增加
+DNS.1 = *.charlietest.com
+
+说明：
+ca.cnf文件是为申请CA根证书的配置文件; server.ext是生成服务器证书的扩展配置文件;
+生成证书 执行以下3条命令
+openssl req -x509 -newkey rsa:2048 -out ca.cer -outform PEM -keyout ca.key -days 3650 -verbose -config ca.cnf -nodes -sha256 -subj "/CN=Charlie CA"
+
+openssl req -newkey rsa:2048 -keyout server.key -out server.req -subj /CN=*.charlietest.com -sha256 -nodes
+
+openssl x509 -req -CA ca.cer -CAkey ca.key -in server.req -out server.cer -days 3650 -extfile server.ext -sha256 -set_serial 0x1111
+
+执行完成后，生成如下文件，其中ca.cer是用来安装在浏览器上，server.cer与server.key是服务器端的证书和key文件，在Nginx中配置
+-rw-r--r--. 1 root root 1005 Dec 26 14:30 ca.cer
+-rw-r--r--. 1 root root  551 Dec 26 13:55 ca.cnf
+-rw-r--r--. 1 root root 1708 Dec 26 14:30 ca.key
+-rw-r--r--. 1 root root 1046 Dec 26 14:30 server.cer
+-rw-r--r--. 1 root root  144 Dec 26 13:57 server.ext
+-rw-r--r--. 1 root root 1704 Dec 26 14:30 server.key
+-rw-r--r--. 1 root root  895 Dec 26 14:30 server.req
+
+在设备上安装证书
+以windows为例，直接双击ca.cer文件
+点击‘安装证书’，证书存储选择‘将所有的证书都放入下列存储’，浏览选择‘受信任的根证书颁发机构’，点击‘下一步’-‘完成’
+重新打开页面后，已显示绿色安全
