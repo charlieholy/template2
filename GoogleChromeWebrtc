@@ -12,3 +12,53 @@ console.log("asd");
 </script>
 
 ./Google\ Chrome 1.html
+
+1.html
+<html>
+	<head>
+		<title>WebRTC capture video and audio</title>
+	</head>
+	<body>
+		<video autoplay playsinline id="player"></video>
+	<audio id="player" controls autoplay loop>
+    <source src="a.mp3" type="audio/mp3">
+</audio>
+
+		<div>
+	<button id="snapshot">Take snapshout</button>
+</div>
+<div>
+	<canvas id="picture"></canvas>
+</div>
+<script>
+var videoplay = document.querySelector('video#player');
+	function gotMediaStream(stream){
+videoplay.srcObject = stream;
+		}
+	function handleError(err){
+console.log('getUserMedia error:',err);
+		}
+
+console.log("asd");
+	var eP = navigator.mediaDevices.enumerateDevices();
+	console.log("asd:",eP);
+	var constraints = {
+	  video : true,
+	  audio : true 
+	}
+	navigator.mediaDevices.getUserMedia(constraints)
+	.then(gotMediaStream)
+	.catch(handleError);
+        navigator
+	var btn_snapshot = document.querySelector('button#snapshot');
+	var canv_picture = document.querySelector('canvas#picture'); 
+	canv_picture.width = 320;
+	canv_picture.height = 240;
+	btn_snapshot.onclick = function(){
+ 		console.log("snapshot...");
+		//canv_picture.getContext('2d').drawImage(v)
+	}
+</script>
+	</body>
+</html>
+
