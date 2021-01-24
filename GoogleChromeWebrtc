@@ -14,9 +14,28 @@ console.log("asd");
 ./Google\ Chrome 1.html
 
 1.html
+
 <html>
 	<head>
 		<title>WebRTC capture video and audio</title>
+
+		<style>
+			.none{
+				-webkit-filter: none;
+			}
+			.blur{
+				-webkit-filter: blur(3px);
+			}
+			.grayscale{
+				-webkit-filter: grayscale(1);
+			}
+			.invert{
+				-webkit-filter: invert(1);
+			}
+			.sepia{
+				-webkit-filter: sepia(1);
+			}
+		</style>
 	</head>
 	<body>
 		<div>
@@ -31,6 +50,18 @@ console.log("asd");
 			<label>video Source:</label>
 		<select id="videoSource"></select>
 		</div>
+
+		<div>
+			<label>Filter:</label>
+			<select id="filter">
+				<option value="none">None</option>
+				<option value="blur">Blur</option>
+				<option value="grayscale">Grayscale</option>
+				<option value="invert">Invert</option>
+				<option value="sepia">Sepia</option>
+			</select>
+		</div>
+
 		<section>
 			<table><tr><td>
 						<video autoplay playsinline id="player"></video></td><td><div id='constraints' class='output'></div></td>
@@ -49,6 +80,7 @@ var audioSource = document.querySelector('select#audioSource');
 var audioOutput = document.querySelector('select#audioOutput');
 var videoSource = document.querySelector('select#videoSource');
 var videoplay = document.querySelector('video#player');
+var filterSelect = document.querySelector('select#filter');
 var audioplay = document.querySelector('audio#audioplayer');
 var divConstraints = document.querySelector('div#constraints');
 	function gotDevices(deviceInfos){
@@ -98,11 +130,12 @@ noiseSuppression:true,
 	start();
 	var btn_snapshot = document.querySelector('button#snapshot');
 	var canv_picture = document.querySelector('canvas#picture'); 
-	canv_picture.width = 320;
-	canv_picture.height = 240;
 	btn_snapshot.onclick = function(){
  		console.log("snapshot...");
-		//canv_picture.getContext('2d').drawImage(v)
+		canv_picture.getContext('2d').drawImage(videoplay,0,0,320,240);
+	}
+	filterSelect.onchange = function(){
+  		videoplay.className = filterSelect.value;	
 	}
 </script>
 	</body>
