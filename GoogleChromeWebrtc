@@ -5,16 +5,6 @@ vi "Google Chrome"
 sudo chmod u+x "Google Chrome"
 
 vi 1.html
-<script>
-console.log("asd");
-	var eP = navigator.mediaDevices.enumerateDevices();
-	console.log("asd:",eP);
-</script>
-
-./Google\ Chrome 1.html
-
-1.html
-
 <html>
 	<head>
 		<title>WebRTC capture video and audio</title>
@@ -65,7 +55,14 @@ console.log("asd");
 		<section>
 			<table><tr><td>
 						<video autoplay playsinline id="player"></video></td><td><div id='constraints' class='output'></div></td>
-				</tr></table>
+						<video playsinline id="recplayer"></video></td><td><div id='constraints' class='output'></div></td>
+				</tr>
+				<tr>
+				<td><button id="record">Start Record</button></td>
+				<td><button id="recplay" disabled=true>Record Play</button></td>
+				<td><button id="download" disabled=true>Download</button></td>
+			</tr>
+			</table>
 		</section>
 		<audio autoplay controls id='audioplayer'></audio>
 
@@ -83,6 +80,12 @@ var videoplay = document.querySelector('video#player');
 var filterSelect = document.querySelector('select#filter');
 var audioplay = document.querySelector('audio#audioplayer');
 var divConstraints = document.querySelector('div#constraints');
+var recvideo = document.querySelector('video#recplayer');
+var btnRecord = document.querySelector('button#record');
+var btnPlay = document.querySelector('button#recplay');
+var btnDownload = document.querySelector('button#download');
+var buffer;
+var mediaRecorder;
 	function gotDevices(deviceInfos){
 			console.log("deviceInfos:",deviceInfos)
 			deviceInfos.forEach(function(deviceinfo){
@@ -103,7 +106,7 @@ videoplay.srcObject = stream;
 			var videoTrack = stream.getVideoTracks()[0];
 			var videoConstraints = videoTrack.getSettings();
 			divConstraints.textContent = JSON.stringify(videoConstraints,null,2);
-
+	window.stream = stream;
 	return navigator.mediaDevices.enumerateDevices();
 		}
 	function handleError(err){
@@ -122,6 +125,7 @@ noiseSuppression:true,
 					facingMode:'enviroment'
 				}
 	} 
+	//navigator.mediaDevices.getDisplayMedia(constraints)
 	navigator.mediaDevices.getUserMedia(constraints)
 	.then(gotMediaStream)
 	.then(gotDevices)
@@ -136,6 +140,62 @@ noiseSuppression:true,
 	}
 	filterSelect.onchange = function(){
   		videoplay.className = filterSelect.value;	
+	}
+	function handleDataAvailable(e){
+		if(e && e.data && e.data.size > 0 ){
+			buffer.push(e.data);
+		}
+	}
+	function startRecord(){
+		buffer = [];
+		var options = {
+			mimeType: 'video/webm;codecs=vp8'
+			}
+		if(!MediaRecorder.isTypeSupported(options.mimeType)){
+			console.error(`${options.mimeType} is not supported!`);
+			return ;
+		}
+		try{
+			mediaRecorder = new MediaRecorder(window.stream,options);
+		}catch(e){
+			console.error('Failed to create MediaRecorder:',e);
+			return ;
+		}
+		mediaRecorder.ondataavailable = handleDataAvailable;
+		mediaRecorder.start(10);
+	}
+	function stopRecord(){
+		mediaRecorder.stop(); 
+	}
+	btnRecord.onclick = ()=>{
+		if(btnRecord.textContent === 'Start Record'){
+			startRecord();
+			btnPlay.disabled = true;
+			btnDownload.disabled = true;
+			btnRecord.textContent = 'Stop Record';
+		}else {
+			stopRecord();
+			btnRecord.textContent = 'Start Record';
+			btnPlay.disabled = false;
+			btnDownload.disabled = false;
+		}
+	}
+	btnPlay.onclick = ()=> {
+		var blob = new Blob(buffer,{type: 'video/webm'});
+		recvideo.src = window.URL.createObjectURL(blob);
+		recvideo.srcObject = null;
+		recvideo.controls = true;
+		recvideo.play();
+	}
+	btnDownload.onclick = ()=>{
+			console.log('debug download...')
+		var blob = new Blob(buffer,{type: 'video/webm'});
+		var url = window.URL.createObjectURL(blob);
+		var a = document.createElement('a');
+		a.href = url;
+		a.style.display = 'none';
+		a.download = 'aaa.webm';
+		a.click();
 	}
 </script>
 	</body>
