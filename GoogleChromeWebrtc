@@ -86,6 +86,7 @@ var btnPlay = document.querySelector('button#recplay');
 var btnDownload = document.querySelector('button#download');
 var buffer;
 var mediaRecorder;
+var pc = new RTCPeerConnection();
 	function gotDevices(deviceInfos){
 			console.log("deviceInfos:",deviceInfos)
 			deviceInfos.forEach(function(deviceinfo){
@@ -101,7 +102,20 @@ var option = document.createElement('option');
 								}
 				})
 		}
+	function handleError(err){
+console.log('getUserMedia error:',err);
+		}
 	function gotMediaStream(stream){
+		stream.getTracks().forEach((track)=>{
+				pc.addTrack(track);
+					})
+	var options = {
+		offerToReceiveAudio:0,
+		offerToReceiveVideo:1,
+		iceRestart:false
+		}
+	pc.createOffer(options).then(getOffer).catch(handleError);
+
 videoplay.srcObject = stream;
 			var videoTrack = stream.getVideoTracks()[0];
 			var videoConstraints = videoTrack.getSettings();
@@ -109,9 +123,12 @@ videoplay.srcObject = stream;
 	window.stream = stream;
 	return navigator.mediaDevices.enumerateDevices();
 		}
-	function handleError(err){
-console.log('getUserMedia error:',err);
-		}
+
+	function getOffer(desc){
+	console.log(desc.sdp);
+	pc.setLocalDescription(desc);
+	}
+
 	function start(){
 	var constraints = {
 			audio:{
